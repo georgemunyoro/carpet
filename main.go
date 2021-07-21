@@ -1,6 +1,7 @@
 package main
 
 import (
+	"carpet/server"
 	"flag"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
@@ -108,11 +109,16 @@ func watchDirectory(path string, fi os.FileInfo, err error) error {
 func main() {
 	var projectDirectory = flag.String("p", ".", "Project directory")
 	var hotReloadFlag = flag.Bool("w", false, "Watch files")
+	var serveFlag = flag.Bool("s", false, "Serve output directory")
 	flag.Parse()
 
 	projectDir := string(*projectDirectory)
 	if projectDir[len(projectDir)-1] != '/' {
 		projectDir += "/"
+	}
+
+	if *serveFlag {
+		go server.Serve(projectDir + "dist/")
 	}
 
 	if !*hotReloadFlag {
