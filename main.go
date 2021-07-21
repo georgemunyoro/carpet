@@ -2,12 +2,16 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"weave"
 )
+
+var watcher *fsnotify.Watcher
 
 func processFile(filename, projectDir string) error {
 	content, header := readFile(filename)
@@ -35,13 +39,9 @@ func processFile(filename, projectDir string) error {
 	return err
 }
 
-func compileProject(projectDir string) (error) {
-	if projectDir[len(projectDir)-1] != '/' {
-		projectDir += "/"
-	}
-
+func compileProject(projectDir string) error {
 	var files []string
-	err := filepath.Walk(projectDir + "pages", func(path string, info os.FileInfo, e error) error {
+	err := filepath.Walk(projectDir+"pages", func(path string, info os.FileInfo, e error) error {
 		check(e)
 		if strings.HasSuffix(path, "html") {
 			files = append(files, path)
@@ -52,19 +52,73 @@ func compileProject(projectDir string) (error) {
 
 	err = os.RemoveAll(projectDir + "dist")
 	check(err)
-	err = os.Mkdir(projectDir + "dist", os.ModePerm)
+	err = os.Mkdir(projectDir+"dist", os.ModePerm)
 	check(err)
 
 	for _, file := range files {
-		err := processFile(file, projectDir)
+		if strings.HasSuffix(file, "html") {
+			err := processFile(file, projectDir)
+			check(err)
+		}
+	}
+	return nil
+}
+
+func watchProject(projectDir string) {
+	watcher, _ = fsnotify.NewWatcher()
+	defer watcher.Close()
+
+	if err := filepath.Walk(projectDir+"pages/", watchDirectory); err != nil {
 		check(err)
+	}
+	fmt.Println(projectDir + "pages/")
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case event := <-watcher.Events:
+				if event.Op != fsnotify.Chmod {
+					if !strings.HasSuffix(event.Name, "dist") {
+						fmt.Println("filesystem change detected, reloading...")
+						err := compileProject(projectDir)
+						check(err)
+					}
+				}
+			case err := <-watcher.Errors:
+				fmt.Println("ERROR", err)
+			}
+		}
+	}()
+
+	if err := watcher.Add(projectDir); err != nil {
+		fmt.Println("ERROR", err)
+	}
+	<-done
+}
+
+func watchDirectory(path string, fi os.FileInfo, err error) error {
+	if fi.Mode().IsDir() && !strings.HasSuffix(path, ".html") {
+		fmt.Println(path)
+		return watcher.Add(path)
 	}
 	return nil
 }
 
 func main() {
 	var projectDirectory = flag.String("p", ".", "Project directory")
+	var hotReloadFlag = flag.Bool("w", false, "Watch files")
 	flag.Parse()
-	err := compileProject(string(*projectDirectory))
-	check(err)
+
+	projectDir := string(*projectDirectory)
+	if projectDir[len(projectDir)-1] != '/' {
+		projectDir += "/"
+	}
+
+	if !*hotReloadFlag {
+		err := compileProject(projectDir)
+		check(err)
+	} else {
+		watchProject(projectDir)
+	}
 }
