@@ -5,7 +5,7 @@ name = "go"
 enabled = true
 
   [analyzers.meta]
-  import_paths = ["github.com/georgemunyoro/static-site-generator"]
+  import_root = "github.com/georgemunyoro/carpet"
 
 [[analyzers]]
 name = "test-coverage"
