@@ -39,9 +39,9 @@ func processFile(filename, projectDir string) error {
 	return err
 }
 
-func compileProject(projectDir string) (error) {
+func compileProject(projectDir string) error {
 	var files []string
-	err := filepath.Walk(projectDir + "pages", func(path string, info os.FileInfo, e error) error {
+	err := filepath.Walk(projectDir+"pages", func(path string, info os.FileInfo, e error) error {
 		check(e)
 		if strings.HasSuffix(path, "html") {
 			files = append(files, path)
@@ -52,7 +52,7 @@ func compileProject(projectDir string) (error) {
 
 	err = os.RemoveAll(projectDir + "dist")
 	check(err)
-	err = os.Mkdir(projectDir + "dist", os.ModePerm)
+	err = os.Mkdir(projectDir+"dist", os.ModePerm)
 	check(err)
 
 	for _, file := range files {
@@ -68,7 +68,7 @@ func watchProject(projectDir string) {
 	watcher, _ = fsnotify.NewWatcher()
 	defer watcher.Close()
 
-	if err := filepath.Walk(projectDir + "pages/", watchDirectory); err != nil {
+	if err := filepath.Walk(projectDir+"pages/", watchDirectory); err != nil {
 		check(err)
 	}
 	fmt.Println(projectDir + "pages/")
