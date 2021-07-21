@@ -70,18 +70,17 @@ var ExamplePage2Content = strings.TrimSpace(`
     </div>
 </div>`)
 
-
 var ExamplePage1Content = strings.TrimSpace("<p>Hello, World!</p>")
 
 var ExampleHeader = map[string]interface{}{
-	"title": "Example Page",
+	"title":       "Example Page",
 	"description": "Lorem ipsum dolor sit amet",
-	"author": "John Doe",
-	"pi": 3.1415926,
+	"author":      "John Doe",
+	"pi":          3.1415926,
 }
 
 func TestParseHeader(t *testing.T) {
-	got  := parseHeader(ExamplePage1).(map[string]interface{})
+	got := parseHeader(ExamplePage1).(map[string]interface{})
 	for k, v := range ExampleHeader {
 		if got[k] != v {
 			t.Errorf("got %v, wanted %v", got[k], v)
@@ -90,12 +89,12 @@ func TestParseHeader(t *testing.T) {
 }
 
 func TestExtractContent(t *testing.T) {
-	got  := strings.TrimSpace(extractContent(ExamplePage1))
+	got := strings.TrimSpace(extractContent(ExamplePage1))
 	if got != ExamplePage1Content {
 		t.Errorf("got %v, wanted %v", got, ExamplePage1Content)
 	}
 
-	got  = strings.TrimSpace(extractContent(ExamplePage2))
+	got = strings.TrimSpace(extractContent(ExamplePage2))
 	if got != ExamplePage2Content {
 		t.Errorf("got %v, wanted %v", got, ExamplePage2Content)
 	}
