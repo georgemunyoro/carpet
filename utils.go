@@ -64,6 +64,10 @@ func readFile(filename string) (string, interface{}) {
 	dat, err := ioutil.ReadFile(filename)
 	check(err)
 
+	if len(strings.TrimSpace(string(dat))) == 0 {
+		return "", nil
+	}
+
 	content := extractContent(string(dat))
 	header := parseHeader(string(dat))
 
