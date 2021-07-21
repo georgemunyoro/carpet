@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,9 +14,8 @@ func processFile(filename, projectDir string) error {
 	var ctx map[string]interface{} = header.(map[string]interface{})
 	ctx["content"] = content
 
-	template, err := ioutil.ReadFile(projectDir + "/templates/" + ctx["template"].(string) + ".html")
+	template, err := ioutil.ReadFile(projectDir + "templates/" + ctx["template"].(string) + ".html")
 	check(err)
-
 	render := weave.Render(string(template), ctx)
 
 	x := strings.Split(filename, "/pages/")[1]
@@ -36,14 +36,23 @@ func processFile(filename, projectDir string) error {
 }
 
 func compileProject(projectDir string) (error) {
+	if projectDir[len(projectDir)-1] != '/' {
+		projectDir += "/"
+	}
+
 	var files []string
-	err := filepath.Walk(projectDir + "/pages", func(path string, info os.FileInfo, e error) error {
+	err := filepath.Walk(projectDir + "pages", func(path string, info os.FileInfo, e error) error {
 		check(e)
 		if strings.HasSuffix(path, "html") {
 			files = append(files, path)
 		}
 		return nil
 	})
+	check(err)
+
+	err = os.RemoveAll(projectDir + "dist")
+	check(err)
+	err = os.Mkdir(projectDir + "dist", os.ModePerm)
 	check(err)
 
 	for _, file := range files {
@@ -54,7 +63,8 @@ func compileProject(projectDir string) (error) {
 }
 
 func main() {
-	const testDir = "/home/georgemunyoro/workspace/georgemunyoro.me/"
-	err := compileProject(testDir)
+	var projectDirectory = flag.String("p", ".", "Project directory")
+	flag.Parse()
+	err := compileProject(string(*projectDirectory))
 	check(err)
 }
