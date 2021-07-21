@@ -10,7 +10,7 @@ import (
 )
 
 type fileHandler struct {
-	root http.FileSystem
+	root       http.FileSystem
 	projectDir string
 }
 
@@ -48,7 +48,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, fs http.FileSystem, name 
 		}
 	}
 
-	_, err := fmt.Fprint(w, fileContents + eventSourceScript)
+	_, err := fmt.Fprint(w, fileContents+eventSourceScript)
 	if err != nil {
 		return
 	}
