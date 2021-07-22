@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"strings"
@@ -80,7 +80,7 @@ var ExampleHeader = map[string]interface{}{
 }
 
 func TestParseHeader(t *testing.T) {
-	got := parseHeader(ExamplePage1).(map[string]interface{})
+	got := ParseHeader(ExamplePage1).(map[string]interface{})
 	for k, v := range ExampleHeader {
 		if got[k] != v {
 			t.Errorf("got %v, wanted %v", got[k], v)
@@ -89,19 +89,19 @@ func TestParseHeader(t *testing.T) {
 }
 
 func TestExtractContent(t *testing.T) {
-	got := strings.TrimSpace(extractContent(ExamplePage1))
+	got := strings.TrimSpace(ExtractContent(ExamplePage1))
 	if got != ExamplePage1Content {
 		t.Errorf("got %v, wanted %v", got, ExamplePage1Content)
 	}
 
-	got = strings.TrimSpace(extractContent(ExamplePage2))
+	got = strings.TrimSpace(ExtractContent(ExamplePage2))
 	if got != ExamplePage2Content {
 		t.Errorf("got %v, wanted %v", got, ExamplePage2Content)
 	}
 }
 
 func TestReadFile(t *testing.T) {
-	gotContent, gotHeader := readFile("./testing/test.html")
+	gotContent, gotHeader := ReadFile("../testing/test.html")
 	gotContent = strings.TrimSpace(gotContent)
 	if gotContent != ExamplePage2Content {
 		t.Errorf("got %v, wanted %v", gotContent, ExamplePage2Content)
@@ -113,7 +113,7 @@ func TestReadFile(t *testing.T) {
 		}
 	}
 
-	gotContent, gotHeader = readFile("./testing/empty_test.html")
+	gotContent, gotHeader = ReadFile("../testing/empty_test.html")
 	if gotContent != "" {
 		t.Errorf("got %v, wanted %v", gotContent, "")
 	}

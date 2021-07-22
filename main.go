@@ -2,11 +2,13 @@ package main
 
 import (
 	"carpet/server"
+	"carpet/utils"
 	"flag"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/antage/eventsource.v1"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -18,7 +20,7 @@ import (
 var watcher *fsnotify.Watcher
 
 func processFile(filename, projectDir string) error {
-	content, header := readFile(filename)
+	content, header := utils.ReadFile(filename)
 	if len(strings.TrimSpace(content)) == 0 {
 		return nil
 	}
@@ -26,7 +28,9 @@ func processFile(filename, projectDir string) error {
 	ctx["content"] = content
 
 	template, err := ioutil.ReadFile(projectDir + "templates/" + ctx["template"].(string) + ".html")
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	if len(template) == 0 {
 		return nil
@@ -41,6 +45,7 @@ func processFile(filename, projectDir string) error {
 	if len(z) > 0 {
 		err := os.MkdirAll(projectDir+"dist/"+strings.Join(z, "/"), os.ModePerm)
 		if err != nil {
+			return err
 		}
 		z = append(z, ctx["path"].(string))
 		ctx["path"] = strings.Join(z, "/")
@@ -54,23 +59,33 @@ func processFile(filename, projectDir string) error {
 func compileProject(projectDir string) error {
 	var files []string
 	err := filepath.Walk(projectDir+"pages", func(path string, info os.FileInfo, e error) error {
-		check(e)
+		if e != nil {
+			return e
+		}
 		if strings.HasSuffix(path, "html") {
 			files = append(files, path)
 		}
 		return nil
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	err = os.RemoveAll(projectDir + "dist")
-	check(err)
+	if err != nil {
+		return err
+	}
 	err = os.Mkdir(projectDir+"dist", os.ModePerm)
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	for _, file := range files {
 		if strings.HasSuffix(file, "html") {
 			err := processFile(file, projectDir)
-			check(err)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -85,10 +100,10 @@ func watchProject(projectDir string) {
 	http.Handle("/es-subscribe", es)
 
 	if err := filepath.Walk(projectDir+"pages/", watchDirectory); err != nil {
-		check(err)
+		log.Fatal(err)
 	}
 	if err := filepath.Walk(projectDir+"templates/", watchDirectory); err != nil {
-		check(err)
+		log.Fatal(err)
 	}
 
 	done := make(chan bool)
@@ -102,7 +117,9 @@ func watchProject(projectDir string) {
 						es.SendEventMessage("reload", "reload-event", time.Time{}.String())
 						fmt.Println("filesystem change detected, reloading...")
 						err := compileProject(projectDir)
-						check(err)
+						if err != nil {
+							log.Fatal(err)
+						}
 					}
 				}
 			case err := <-watcher.Errors:
@@ -137,12 +154,14 @@ func main() {
 	}
 
 	if *serveFlag {
-		go server.Serve(projectDir + "dist/", *serverPort)
+		go server.Serve(projectDir+"dist/", *serverPort)
 	}
 
 	if !*hotReloadFlag {
 		err := compileProject(projectDir)
-		check(err)
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
 		watchProject(projectDir)
 	}
