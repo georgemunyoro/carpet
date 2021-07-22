@@ -154,7 +154,7 @@ func main() {
 	}
 
 	if *serveFlag {
-		go server.Serve(projectDir + "dist/", *serverPort)
+		go server.Serve(projectDir+"dist/", *serverPort)
 	}
 
 	if !*hotReloadFlag {
