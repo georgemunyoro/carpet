@@ -60,10 +60,10 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveFile(w, r, f.root, path.Clean(r.URL.Path), true, f.projectDir)
 }
 
-func Serve(filepath string) {
+func Serve(filepath, port string) {
 	fs := http.Dir(filepath)
 	fh := fileHandler{root: fs}
 	fh.projectDir = filepath
 	http.Handle("/", &fh)
-	log.Fatal(http.ListenAndServe(":8090", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

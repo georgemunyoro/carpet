@@ -128,6 +128,7 @@ func main() {
 	var projectDirectory = flag.String("p", ".", "Project directory")
 	var hotReloadFlag = flag.Bool("w", false, "Watch files")
 	var serveFlag = flag.Bool("s", false, "Serve output directory")
+	var serverPort = flag.String("port", "8090", "Server port")
 	flag.Parse()
 
 	projectDir := string(*projectDirectory)
@@ -136,7 +137,7 @@ func main() {
 	}
 
 	if *serveFlag {
-		go server.Serve(projectDir + "dist/")
+		go server.Serve(projectDir + "dist/", *serverPort)
 	}
 
 	if !*hotReloadFlag {
