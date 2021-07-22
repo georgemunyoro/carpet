@@ -14,12 +14,10 @@ type fileHandler struct {
 	projectDir string
 }
 
-var eventSourceScript string = `
-<script>
+var eventSourceScript string = `<script>
 	let es = new EventSource("/es-subscribe");
 	es.addEventListener("reload-event", (e) => {window.location.reload()});
-</script>
-`
+</script>`
 
 func serveFile(w http.ResponseWriter, r *http.Request, fs http.FileSystem, name string, redirect bool, projectDir string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
