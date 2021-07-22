@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"encoding/json"
@@ -14,13 +14,7 @@ type DirectoryMapEntity struct {
 	Contents    map[string]DirectoryMapEntity
 }
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func parseHeader(t string) interface{} {
+func ParseHeader(t string) interface{} {
 	lines := strings.Split(t, "\n")
 
 	inHeader := false
@@ -38,12 +32,14 @@ func parseHeader(t string) interface{} {
 
 	var res interface{}
 	err := json.Unmarshal([]byte(jStr), &res)
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return res
 }
 
-func extractContent(t string) string {
+func ExtractContent(t string) string {
 	lines := strings.Split(t, "\n")
 	inHeader := false
 	res := ""
@@ -60,16 +56,18 @@ func extractContent(t string) string {
 	return res
 }
 
-func readFile(filename string) (string, interface{}) {
+func ReadFile(filename string) (string, interface{}) {
 	dat, err := ioutil.ReadFile(filename)
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if len(strings.TrimSpace(string(dat))) == 0 {
 		return "", nil
 	}
 
-	content := extractContent(string(dat))
-	header := parseHeader(string(dat))
+	content := ExtractContent(string(dat))
+	header := ParseHeader(string(dat))
 
 	return content, header
 }

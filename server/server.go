@@ -14,12 +14,10 @@ type fileHandler struct {
 	projectDir string
 }
 
-var eventSourceScript string = `
-<script>
+var eventSourceScript string = `<script>
 	let es = new EventSource("/es-subscribe");
 	es.addEventListener("reload-event", (e) => {window.location.reload()});
-</script>
-`
+</script>`
 
 func serveFile(w http.ResponseWriter, r *http.Request, fs http.FileSystem, name string, redirect bool, projectDir string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -46,13 +44,13 @@ func serveFile(w http.ResponseWriter, r *http.Request, fs http.FileSystem, name 
 		} else {
 			fileContents = "<h1>404</h1><br>Add a <i>404.html</i> into your templates directory to be shown here instead."
 		}
+		w.WriteHeader(http.StatusNotFound)
 	}
 
 	_, err := fmt.Fprint(w, fileContents+eventSourceScript)
 	if err != nil {
 		return
 	}
-	return
 }
 
 func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -60,10 +58,10 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveFile(w, r, f.root, path.Clean(r.URL.Path), true, f.projectDir)
 }
 
-func Serve(filepath string) {
+func Serve(filepath, port string) {
 	fs := http.Dir(filepath)
 	fh := fileHandler{root: fs}
 	fh.projectDir = filepath
 	http.Handle("/", &fh)
-	log.Fatal(http.ListenAndServe(":8090", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
