@@ -44,13 +44,13 @@ func serveFile(w http.ResponseWriter, r *http.Request, fs http.FileSystem, name 
 		} else {
 			fileContents = "<h1>404</h1><br>Add a <i>404.html</i> into your templates directory to be shown here instead."
 		}
+		w.WriteHeader(http.StatusNotFound)
 	}
 
 	_, err := fmt.Fprint(w, fileContents+eventSourceScript)
 	if err != nil {
 		return
 	}
-	return
 }
 
 func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
