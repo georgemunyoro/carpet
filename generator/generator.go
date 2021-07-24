@@ -43,7 +43,7 @@ func (p *Page) Render() (string, error) {
 	ctx["content"] = p.Body
 
 	templateFilename := p.ProjectDir + "templates/" + ctx["template"].(string) + ".html"
-	template, err 	 := ioutil.ReadFile(templateFilename)
+	template, err := ioutil.ReadFile(templateFilename)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf(
 			"unable to read template file: %s",
@@ -89,7 +89,7 @@ func (p *Page) loadHeader(s string) error {
 	lines := strings.Split(s, "\n")
 
 	inHeader := false
-	jStr	 := ""
+	jStr := ""
 	for _, j := range lines {
 		if j == "---" {
 			inHeader = !inHeader
