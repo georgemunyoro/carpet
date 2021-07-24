@@ -1,60 +1,21 @@
 package main
 
 import (
+	"carpet/generator"
 	"carpet/server"
-	"carpet/utils"
 	"flag"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/antage/eventsource.v1"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-	"weave"
 )
 
 var watcher *fsnotify.Watcher
-
-func processFile(filename, projectDir string) error {
-	content, header := utils.ReadFile(filename)
-	if len(strings.TrimSpace(content)) == 0 {
-		return nil
-	}
-	var ctx map[string]interface{} = header.(map[string]interface{})
-	ctx["content"] = content
-
-	template, err := ioutil.ReadFile(projectDir + "templates/" + ctx["template"].(string) + ".html")
-	if err != nil {
-		return err
-	}
-
-	if len(template) == 0 {
-		return nil
-	}
-
-	render := weave.Render(string(template), ctx)
-
-	x := strings.Split(filename, "/pages/")[1]
-	y := strings.Split(x, "/")
-	z := y[:len(y)-1]
-
-	if len(z) > 0 {
-		err := os.MkdirAll(projectDir+"dist/"+strings.Join(z, "/"), os.ModePerm)
-		if err != nil {
-			return err
-		}
-		z = append(z, ctx["path"].(string))
-		ctx["path"] = strings.Join(z, "/")
-	}
-
-	newFilename := projectDir + "dist/" + ctx["path"].(string)
-	err = ioutil.WriteFile(newFilename, []byte(render), os.ModePerm)
-	return err
-}
 
 func compileProject(projectDir string) error {
 	var files []string
@@ -82,7 +43,15 @@ func compileProject(projectDir string) error {
 
 	for _, file := range files {
 		if strings.HasSuffix(file, "html") {
-			err := processFile(file, projectDir)
+			p := generator.Page{
+				Filename:       file,
+				ProjectDir:     projectDir,
+			}
+			err := p.NewPage()
+			if err != nil {
+				return err
+			}
+			err = p.WriteToDisk()
 			if err != nil {
 				return err
 			}
@@ -135,6 +104,7 @@ func watchProject(projectDir string) {
 }
 
 func watchDirectory(path string, fi os.FileInfo, err error) error {
+	fmt.Println(path)
 	if fi.Mode().IsDir() && !strings.HasSuffix(path, ".html") {
 		return watcher.Add(path)
 	}
