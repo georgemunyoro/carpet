@@ -44,8 +44,8 @@ func compileProject(projectDir string) error {
 	for _, file := range files {
 		if strings.HasSuffix(file, "html") {
 			p := generator.Page{
-				Filename:       file,
-				ProjectDir:     projectDir,
+				Filename:   file,
+				ProjectDir: projectDir,
 			}
 			err := p.NewPage()
 			if err != nil {

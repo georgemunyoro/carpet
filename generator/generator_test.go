@@ -88,8 +88,8 @@ var TestPageInvalidHeader string = `---
 
 func TestRender(t *testing.T) {
 	TestPage := Page{
-		Filename:       "../testing/pages/test.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/test.html",
+		ProjectDir: "../testing/",
 	}
 	err := TestPage.NewPage()
 	if err != nil {
@@ -101,7 +101,7 @@ func TestRender(t *testing.T) {
 		t.Error(err2)
 	}
 	wanted := strings.TrimSpace(TestPage.Body)
-	got 	= strings.TrimSpace(got)
+	got = strings.TrimSpace(got)
 
 	if got != wanted {
 		t.Errorf("got %s, wanted %s", got, wanted)
@@ -110,8 +110,8 @@ func TestRender(t *testing.T) {
 
 func TestRenderEmptyString(t *testing.T) {
 	TestPage := Page{
-		Filename:       "../testing/pages/test.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/test.html",
+		ProjectDir: "../testing/",
 	}
 	got, err := TestPage.Render()
 	if err != nil {
@@ -125,8 +125,8 @@ func TestRenderEmptyString(t *testing.T) {
 
 func TestLoadHeader(t *testing.T) {
 	TestPage := Page{
-		Filename:       "../testing/pages/test.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/test.html",
+		ProjectDir: "../testing/",
 	}
 	err := TestPage.NewPage()
 	if err != nil {
@@ -143,8 +143,8 @@ func TestLoadHeader(t *testing.T) {
 
 func TestLoadInvalidHeader(t *testing.T) {
 	TestPage := Page{
-		Filename:       "../testing/pages/bad_header.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/bad_header.html",
+		ProjectDir: "../testing/",
 	}
 	err := TestPage.loadHeader(TestPageInvalidHeader)
 	wanted := "invalid character 'i' looking for beginning of object key string"
@@ -156,8 +156,8 @@ func TestLoadInvalidHeader(t *testing.T) {
 
 func TestLoadBody(t *testing.T) {
 	TestPage := Page{
-		Filename:       "../testing/pages/test.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/test.html",
+		ProjectDir: "../testing/",
 	}
 	TestPage.NewPage()
 
@@ -176,8 +176,8 @@ func TestLoadBody(t *testing.T) {
 
 func TestLoadNonExistentFile(t *testing.T) {
 	TestPage := Page{
-		Filename:		"../testing/pages/non_existent.html",
-		ProjectDir: 	"../testing/",
+		Filename:   "../testing/pages/non_existent.html",
+		ProjectDir: "../testing/",
 	}
 
 	err := TestPage.NewPage()
@@ -190,8 +190,8 @@ func TestLoadNonExistentFile(t *testing.T) {
 
 func TestRenderNonExistentTemplate(t *testing.T) {
 	TestPage := Page{
-		Filename:		"../testing/pages/test.html",
-		ProjectDir: 	"../testing/",
+		Filename:   "../testing/pages/test.html",
+		ProjectDir: "../testing/",
 	}
 
 	err := TestPage.NewPage()
@@ -210,8 +210,8 @@ func TestRenderNonExistentTemplate(t *testing.T) {
 
 func TestLoadHeaderLessFile(t *testing.T) {
 	TestPage := Page{
-		Filename: 		"../testing/pages/no_header.html",
-		ProjectDir: 	"../testing/",
+		Filename:   "../testing/pages/no_header.html",
+		ProjectDir: "../testing/",
 	}
 	err := TestPage.NewPage()
 	wanted := fmt.Sprintf("path property not set in page header of file: %s", TestPage.Filename)
@@ -223,8 +223,8 @@ func TestLoadHeaderLessFile(t *testing.T) {
 
 func TestLoadFile(t *testing.T) {
 	TestPage := Page{
-		Filename:       "../testing/pages/test.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/test.html",
+		ProjectDir: "../testing/",
 	}
 	err := TestPage.NewPage()
 	if err != nil {
@@ -248,8 +248,8 @@ func TestLoadFile(t *testing.T) {
 	}
 
 	TestPage = Page{
-		Filename:       "../testing/pages/empty_test.html",
-		ProjectDir:     "../testing/",
+		Filename:   "../testing/pages/empty_test.html",
+		ProjectDir: "../testing/",
 	}
 	err = TestPage.NewPage()
 	if err != nil {
